@@ -17,8 +17,6 @@ fn main() {
 }
 
 mod day1 {
-    use regex::Regex;
-
     pub fn part1() {
         let stdin = std::io::stdin();
         let mut total_calibration: i32 = 0;
@@ -49,39 +47,57 @@ mod day1 {
     }
 
     pub fn part2() {
-        let re = Regex::new(r"(one|two|three|four|five|six|seven|eight|nine|[0-9])").unwrap();
 
         let mut total_calibration = 0;
 
         let stdin = std::io::stdin();
         for line in stdin.lines() {
             let line = line.expect("Can't read line");
-
-            let caps = re.captures(&line).unwrap();
-
-            println!("{:#?}", caps);
-
-            let first_digit: &str = caps.get(1).unwrap().as_str();
-            let second_digit: &str = caps.get(caps.len() - 1).unwrap().as_str();
-
-            let first_char = digit_str_to_char(first_digit);
-            let second_char = digit_str_to_char(second_digit);
-
-            println!("line: {}", line);
-            println!("{} {}", first_digit, second_digit);
-
-            let mut calibration_string = String::from("");
-            calibration_string.push(first_char);
-            calibration_string.push(second_char);
-
-            let calibration = calibration_string.parse::<i32>().unwrap();
-
-            println!("calibration: {}", calibration);
-
-            total_calibration += calibration;
+            let digits = find_digits(line);
+            total_calibration += digits;
         }
 
-        println!("{}", total_calibration)
+        println!("Total Calibration: {}", total_calibration);
+    }
+
+    fn find_digits(record: String) -> i32 {
+        // Get a line (called record) and return a combination of the first and the
+        // last digit as an _i32_
+
+        let digits = [
+            "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+            "1", "2", "3", "4", "5", "6", "7", "8", "9"
+        ];
+
+        // let mut matches: HashMap<&str, Option<usize>> = HashMap::new();
+
+        let mut calibration_string = String::from("");        
+        let mut first_digit = "";
+        let mut last_digit = "";
+        let mut min: usize = usize::MAX;
+        let mut max: usize = usize::MIN;
+    
+        for digit in digits {
+            let first = record.find(digit);
+            let last = record.rfind(digit);
+
+
+            match first {
+                Some(val) => if val <= min { min = val; first_digit = digit }, 
+                None => (),
+            }
+
+            match last {
+                Some(val) => if val >= max { max = val; last_digit = digit }
+                None => (),
+            }
+
+        }
+
+        calibration_string.push(digit_str_to_char(first_digit));
+        calibration_string.push(digit_str_to_char(last_digit));
+
+        calibration_string.parse::<i32>().unwrap()
     }
 
     fn digit_str_to_char(digit: &str) -> char {
